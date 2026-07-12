@@ -17,43 +17,28 @@ export const vehicleStatusEnum = pgEnum('vehicle_status', [
 
 export const users = pgTable('users', {
   id: uuid().defaultRandom().primaryKey(),
-
   name: varchar({ length: 100 }).notNull(),
-
   email: varchar({ length: 255 }).notNull().unique(),
-
   phone: varchar({ length: 15 }).notNull().unique(),
-
-  passwordHash: varchar({ length: 255 }).notNull(),
-
+  password: varchar({ length: 255 }).notNull(),
   role: roleEnum().default('driver').notNull(),
-
   createdAt: timestamp().defaultNow().notNull(),
-
   updatedAt: timestamp().defaultNow().notNull(),
 });
 
 export const vehicles = pgTable('vehicles', {
   id: uuid().primaryKey().defaultRandom(),
-
   registrationNumber: varchar({ length: 20 }).notNull().unique(),
-
   name: varchar({ length: 100 }).notNull(),
-
   type: varchar({ length: 50 }).notNull(),
-
   capacity: integer().notNull(),
-
   driverId: uuid().references(() => users.id, { onDelete: 'set null' }),
-
   status: vehicleStatusEnum().default('available').notNull(),
-
   createdAt: timestamp().defaultNow().notNull(),
-
   updatedAt: timestamp().defaultNow().notNull(),
 });
 
-// Type exports
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
