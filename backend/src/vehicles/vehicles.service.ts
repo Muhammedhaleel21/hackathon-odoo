@@ -66,6 +66,8 @@ export class VehiclesService {
         name: dto.name,
         type: dto.type,
         capacity: dto.capacity,
+        maxLoadCapacity: dto.maxLoadCapacity ?? 0,
+        odometer: dto.odometer ?? 0,
         driverId: dto.driverId ?? null,
         status: dto.status,
       })
