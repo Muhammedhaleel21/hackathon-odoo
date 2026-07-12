@@ -9,13 +9,16 @@ import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
+import { CostsService } from '../costs/costs.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
+import { CompleteMaintenanceDto } from './dto/complete-maintenance.dto';
 import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
 
 @Injectable()
 export class MaintenanceService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    private readonly costsService: CostsService,
   ) {}
 
   async create(dto: CreateMaintenanceDto) {
@@ -110,8 +113,8 @@ export class MaintenanceService {
     });
   }
 
-  async complete(id: string) {
-    return this.finishMaintenance(id, 'completed');
+  async complete(id: string, dto: CompleteMaintenanceDto = {}) {
+    return this.finishMaintenance(id, 'completed', dto.expenseAmount);
   }
 
   async cancel(id: string) {
@@ -121,6 +124,7 @@ export class MaintenanceService {
   private async finishMaintenance(
     id: string,
     status: 'completed' | 'cancelled',
+    expenseAmount?: number,
   ) {
     return this.db.transaction(async (tx) => {
       const [log] = await tx
@@ -160,6 +164,16 @@ export class MaintenanceService {
         .update(schema.vehicles)
         .set({ status: 'available', updatedAt: new Date() })
         .where(eq(schema.vehicles.id, vehicle.id));
+
+      if (status === 'completed') {
+        await tx.insert(schema.expenses).values({
+          vehicleId: vehicle.id,
+          type: 'maintenance',
+          amount: expenseAmount ?? 0,
+          sourceId: log.id,
+          description: `Maintenance expense for vehicle ${vehicle.id}`,
+        });
+      }
 
       return { message: `Maintenance record ${id} ${status} successfully` };
     });

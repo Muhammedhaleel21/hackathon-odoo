@@ -29,6 +29,11 @@ export const maintenanceStatusEnum = pgEnum('maintenance_status', [
   'cancelled',
 ]);
 
+export const expenseTypeEnum = pgEnum('expense_type', [
+  'fuel',
+  'maintenance',
+]);
+
 export const driverStatusEnum = pgEnum('driver_status', [
   'available',
   'on_trip',
@@ -90,6 +95,27 @@ export const maintenanceLogs = pgTable('maintenance_logs', {
   updatedAt: timestamp().defaultNow().notNull(),
 });
 
+export const fuelLogs = pgTable('fuel_logs', {
+  id: uuid().defaultRandom().primaryKey(),
+  vehicleId: uuid().references(() => vehicles.id, { onDelete: 'restrict' }).notNull(),
+  odometer: integer().notNull(),
+  liters: integer().notNull(),
+  cost: integer().notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().notNull(),
+});
+
+export const expenses = pgTable('expenses', {
+  id: uuid().defaultRandom().primaryKey(),
+  vehicleId: uuid().references(() => vehicles.id, { onDelete: 'restrict' }).notNull(),
+  type: expenseTypeEnum().notNull(),
+  amount: integer().notNull(),
+  sourceId: uuid(),
+  description: varchar({ length: 500 }),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().notNull(),
+});
+
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -102,3 +128,9 @@ export type NewTrip = typeof trips.$inferInsert;
 
 export type MaintenanceLog = typeof maintenanceLogs.$inferSelect;
 export type NewMaintenanceLog = typeof maintenanceLogs.$inferInsert;
+
+export type FuelLog = typeof fuelLogs.$inferSelect;
+export type NewFuelLog = typeof fuelLogs.$inferInsert;
+
+export type Expense = typeof expenses.$inferSelect;
+export type NewExpense = typeof expenses.$inferInsert;

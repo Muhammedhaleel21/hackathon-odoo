@@ -19,6 +19,8 @@ import { CreateMaintenanceSchema } from './dto/create-maintenance.dto';
 import type { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { UpdateMaintenanceSchema } from './dto/update-maintenance.dto';
 import type { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
+import { CompleteMaintenanceSchema } from './dto/complete-maintenance.dto';
+import type { CompleteMaintenanceDto } from './dto/complete-maintenance.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('maintenance')
@@ -55,8 +57,9 @@ export class MaintenanceController {
   }
 
   @Post(':id/complete')
-  complete(@Param('id', ParseUUIDPipe) id: string) {
-    return this.maintenanceService.complete(id);
+  @UsePipes(new ZodValidationPipe(CompleteMaintenanceSchema))
+  complete(@Param('id', ParseUUIDPipe) id: string, @Body() dto: CompleteMaintenanceDto) {
+    return this.maintenanceService.complete(id, dto);
   }
 
   @Post(':id/cancel')
