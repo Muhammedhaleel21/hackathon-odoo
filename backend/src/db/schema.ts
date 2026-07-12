@@ -15,6 +15,13 @@ export const vehicleStatusEnum = pgEnum('vehicle_status', [
   'on_maintenance',
 ]);
 
+export const tripStatusEnum = pgEnum('trip_status', [
+  'draft',
+  'dispatched',
+  'completed',
+  'cancelled',
+]);
+
 export const driverStatusEnum = pgEnum('driver_status', [
   'available',
   'on_trip',
@@ -44,8 +51,23 @@ export const vehicles = pgTable('vehicles', {
   name: varchar({ length: 100 }).notNull(),
   type: varchar({ length: 50 }).notNull(),
   capacity: integer().notNull(),
+  maxLoadCapacity: integer().default(0).notNull(),
+  odometer: integer().default(0).notNull(),
   driverId: uuid().references(() => users.id, { onDelete: 'set null' }),
   status: vehicleStatusEnum().default('available').notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().notNull(),
+});
+
+export const trips = pgTable('trips', {
+  id: uuid().defaultRandom().primaryKey(),
+  source: varchar({ length: 255 }).notNull(),
+  destination: varchar({ length: 255 }).notNull(),
+  vehicleId: uuid().references(() => vehicles.id, { onDelete: 'restrict' }).notNull(),
+  driverId: uuid().references(() => users.id, { onDelete: 'restrict' }).notNull(),
+  cargoWeight: integer().notNull(),
+  plannedDistance: integer().notNull(),
+  status: tripStatusEnum().default('draft').notNull(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull(),
 });
@@ -56,3 +78,6 @@ export type NewUser = typeof users.$inferInsert;
 
 export type Vehicle = typeof vehicles.$inferSelect;
 export type NewVehicle = typeof vehicles.$inferInsert;
+
+export type Trip = typeof trips.$inferSelect;
+export type NewTrip = typeof trips.$inferInsert;
