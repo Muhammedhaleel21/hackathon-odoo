@@ -12,15 +12,15 @@ import {
 } from '@nestjs/common';
 import { VehiclesService } from './vehicles.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { CreateVehicleSchema, CreateVehicleDto } from './dto/create-vehicle.dto';
+import { CreateVehicleSchema, type CreateVehicleDto } from './dto/create-vehicle.dto';
 import {
   UpdateVehicleSchema,
-  UpdateVehicleDto,
+  type UpdateVehicleDto,
   AssignDriverSchema,
-  AssignDriverDto,
+  type AssignDriverDto,
 } from './dto/update-vehicle.dto';
 import { z } from 'zod';
+import { ZodValidationPipe } from 'src/validation/zod.validation.pipe';
 
 const UpdateStatusSchema = z.object({
   status: z.enum(['available', 'on_trip', 'on_maintenance']),
