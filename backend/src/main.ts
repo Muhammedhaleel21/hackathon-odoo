@@ -1,20 +1,33 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Enable CORS for frontend dev server
+  app.useGlobalPipes(new ValidationPipe());
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3001',
+    origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : 'http://localhost:3000',
     credentials: true,
   });
 
-  // Global API prefix
-  app.setGlobalPrefix('api');
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads',
+  })
 
-  const port = process.env.PORT ?? 3000;
-  await app.listen(port);
-  console.log(`🚀 Server running on http://localhost:${port}/api`);
+  
+  await app.listen(
+  process.env.PORT ?? 3001,
+  process.env.HOST ?? '0.0.0.0',
+  () => {
+    console.log(
+      `Listening on ${process.env.HOST ?? '0.0.0.0'}:${process.env.PORT ?? 3001}`
+    );
+  },
+);
 }
 bootstrap();
