@@ -33,13 +33,6 @@
     {
       "idx": 4,
       "version": "7",
-      "when": 1783843661474,
-      "tag": "0004_opposite_maginty",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
       "when": 1783843700000,
       "tag": "0005_costs_feature",
       "breakpoints": true
