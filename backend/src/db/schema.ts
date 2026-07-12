@@ -13,11 +13,18 @@ export const vehicleStatusEnum = pgEnum('vehicle_status', [
   'available',
   'on_trip',
   'on_maintenance',
+  'in_shop',
 ]);
 
 export const tripStatusEnum = pgEnum('trip_status', [
   'draft',
   'dispatched',
+  'completed',
+  'cancelled',
+]);
+
+export const maintenanceStatusEnum = pgEnum('maintenance_status', [
+  'active',
   'completed',
   'cancelled',
 ]);
@@ -72,6 +79,17 @@ export const trips = pgTable('trips', {
   updatedAt: timestamp().defaultNow().notNull(),
 });
 
+export const maintenanceLogs = pgTable('maintenance_logs', {
+  id: uuid().defaultRandom().primaryKey(),
+  vehicleId: uuid().references(() => vehicles.id, { onDelete: 'restrict' }).notNull(),
+  description: varchar({ length: 500 }).notNull(),
+  status: maintenanceStatusEnum().default('active').notNull(),
+  startedAt: timestamp().defaultNow().notNull(),
+  endedAt: timestamp(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().notNull(),
+});
+
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -81,3 +99,6 @@ export type NewVehicle = typeof vehicles.$inferInsert;
 
 export type Trip = typeof trips.$inferSelect;
 export type NewTrip = typeof trips.$inferInsert;
+
+export type MaintenanceLog = typeof maintenanceLogs.$inferSelect;
+export type NewMaintenanceLog = typeof maintenanceLogs.$inferInsert;

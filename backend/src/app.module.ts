@@ -8,9 +8,10 @@ import { VehiclesModule } from './vehicles/vehicles.module';
 import { FleetModule } from './fleet/fleet.module';
 import { DriversModule } from './drivers/drivers.module';
 import { TripsModule } from './trips/trips.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, UsersModule, VehiclesModule, FleetModule, DriversModule, TripsModule],
+  imports: [DatabaseModule, AuthModule, UsersModule, VehiclesModule, FleetModule, DriversModule, TripsModule, MaintenanceModule],
   controllers: [AppController],
   providers: [AppService],
 })
