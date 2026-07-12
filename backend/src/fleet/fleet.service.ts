@@ -11,6 +11,8 @@ import * as schema from '../db/schema';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 
+const VEHICLES_REGISTRATION_NUMBER_CONSTRAINT = 'vehicles_registrationNumber_unique';
+
 @Injectable()
 export class FleetService {
 	constructor(
@@ -30,18 +32,25 @@ export class FleetService {
 			);
 		}
 
-		const [vehicle] = await this.db
-			.insert(schema.vehicles)
-			.values({
-				registrationNumber: dto.registrationNumber,
-				name: dto.name,
-				type: dto.type,
-				capacity: dto.capacity,
-				status: dto.status ?? 'available',
-			})
-			.returning();
+		try {
+			const [vehicle] = await this.db
+				.insert(schema.vehicles)
+				.values({
+					registrationNumber: dto.registrationNumber,
+					name: dto.name,
+					type: dto.type,
+					capacity: dto.capacity,
+					maxLoadCapacity: dto.maxLoadCapacity ?? 0,
+					odometer: dto.odometer ?? 0,
+					status: dto.status ?? 'available',
+				})
+				.returning();
 
-		return vehicle;
+			return vehicle;
+		} catch (error) {
+			this.throwUniqueRegistrationConflict(error, dto.registrationNumber);
+			throw error;
+		}
 	}
 
 	async findAll() {
@@ -79,16 +88,25 @@ export class FleetService {
 			}
 		}
 
-		const [vehicle] = await this.db
-			.update(schema.vehicles)
-			.set({
-				...dto,
-				updatedAt: new Date(),
-			})
-			.where(eq(schema.vehicles.id, id))
-			.returning();
+		try {
+			const [vehicle] = await this.db
+				.update(schema.vehicles)
+				.set({
+					...dto,
+					...(dto.maxLoadCapacity !== undefined
+						? { maxLoadCapacity: dto.maxLoadCapacity }
+						: {}),
+					...(dto.odometer !== undefined ? { odometer: dto.odometer } : {}),
+					updatedAt: new Date(),
+				})
+				.where(eq(schema.vehicles.id, id))
+				.returning();
 
-		return vehicle;
+			return vehicle;
+		} catch (error) {
+			this.throwUniqueRegistrationConflict(error, dto.registrationNumber);
+			throw error;
+		}
 	}
 
 	async remove(id: string) {
@@ -97,5 +115,29 @@ export class FleetService {
 		await this.db.delete(schema.vehicles).where(eq(schema.vehicles.id, id));
 
 		return;
+	}
+
+	private throwUniqueRegistrationConflict(
+		error: unknown,
+		registrationNumber: string | undefined,
+	) {
+		if (!registrationNumber) {
+			return;
+		}
+
+		if (
+			typeof error === 'object' &&
+			error !== null &&
+			'code' in error &&
+			(error as { code?: string }).code === '23505' &&
+			('constraint' in error
+				? (error as { constraint?: string }).constraint ===
+					VEHICLES_REGISTRATION_NUMBER_CONSTRAINT
+				: true)
+		) {
+			throw new ConflictException(
+				`Vehicle with registration number ${registrationNumber} already exists`,
+			);
+		}
 	}
 }
