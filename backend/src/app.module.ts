@@ -6,9 +6,10 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
 import { FleetModule } from './fleet/fleet.module';
+import { DriversModule } from './drivers/drivers.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, UsersModule, VehiclesModule, FleetModule],
+  imports: [DatabaseModule, AuthModule, UsersModule, VehiclesModule, FleetModule, DriversModule],
   controllers: [AppController],
   providers: [AppService],
 })

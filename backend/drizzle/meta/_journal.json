@@ -8,6 +8,13 @@
       "when": 1783832798087,
       "tag": "0000_nifty_gauntlet",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783832800000,
+      "tag": "0001_driver_management",
+      "breakpoints": true
     }
   ]
 }

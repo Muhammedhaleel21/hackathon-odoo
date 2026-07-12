@@ -15,6 +15,13 @@ export const vehicleStatusEnum = pgEnum('vehicle_status', [
   'on_maintenance',
 ]);
 
+export const driverStatusEnum = pgEnum('driver_status', [
+  'available',
+  'on_trip',
+  'off_duty',
+  'suspended',
+]);
+
 export const users = pgTable('users', {
   id: uuid().defaultRandom().primaryKey(),
   name: varchar({ length: 100 }).notNull(),
@@ -22,6 +29,11 @@ export const users = pgTable('users', {
   phone: varchar({ length: 15 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
   role: roleEnum().default('driver').notNull(),
+  licenseNumber: varchar({ length: 50 }).unique(),
+  licenseCategory: varchar({ length: 20 }),
+  licenseExpiryDate: timestamp(),
+  safetyScore: integer(),
+  status: driverStatusEnum(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull(),
 });
