@@ -21,15 +21,37 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    // Check if custom User ID already exists
+    const [existingUserId] = await this.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.userId, dto.userId))
+      .limit(1);
+
+    if (existingUserId) {
+      throw new ConflictException('User ID is already in use');
+    }
+
     // Check if email already exists
-    const [existing] = await this.db
+    const [existingEmail] = await this.db
       .select()
       .from(schema.users)
       .where(eq(schema.users.email, dto.email))
       .limit(1);
 
-    if (existing) {
+    if (existingEmail) {
       throw new ConflictException('Email is already in use');
+    }
+
+    // Check if phone already exists
+    const [existingPhone] = await this.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.phone, dto.phone))
+      .limit(1);
+
+    if (existingPhone) {
+      throw new ConflictException('Phone number is already in use');
     }
 
     // Hash password
@@ -38,14 +60,16 @@ export class AuthService {
     const [user] = await this.db
       .insert(schema.users)
       .values({
+        userId: dto.userId,
         name: dto.name,
         email: dto.email,
         phone: dto.phone,
-        passwordHash,
+        password: passwordHash,
         role: dto.role,
       })
       .returning({
         id: schema.users.id,
+        userId: schema.users.userId,
         name: schema.users.name,
         email: schema.users.email,
         phone: schema.users.phone,
@@ -62,19 +86,19 @@ export class AuthService {
     const [user] = await this.db
       .select()
       .from(schema.users)
-      .where(eq(schema.users.email, dto.email))
+      .where(eq(schema.users.userId, dto.id))
       .limit(1);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const valid = await bcrypt.compare(dto.password, user.passwordHash);
+    const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { passwordHash: _pw, ...safeUser } = user;
+    const { password: _pw, ...safeUser } = user;
     const token = this.signToken(user.id, user.email, user.role);
 
     return { user: safeUser, token };

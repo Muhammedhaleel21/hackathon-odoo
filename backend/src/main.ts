@@ -19,15 +19,15 @@ async function bootstrap() {
     prefix: '/uploads',
   })
 
-  
+
   await app.listen(
-  process.env.PORT ?? 3001,
-  process.env.HOST ?? '0.0.0.0',
-  () => {
-    console.log(
-      `Listening on ${process.env.HOST ?? '0.0.0.0'}:${process.env.PORT ?? 3001}`
-    );
-  },
-);
+    process.env.PORT ?? 3001,
+    process.env.HOST ?? '0.0.0.0',
+    () => {
+      console.log(
+        `Listening on ${process.env.HOST ?? '0.0.0.0'}:${process.env.PORT ?? 3001}`
+      );
+    },
+  );
 }
 bootstrap();

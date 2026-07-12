@@ -17,6 +17,7 @@ export const vehicleStatusEnum = pgEnum('vehicle_status', [
 
 export const users = pgTable('users', {
   id: uuid().defaultRandom().primaryKey(),
+  userId: varchar({ length: 50 }).notNull().unique(),
   name: varchar({ length: 100 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
   phone: varchar({ length: 15 }).notNull().unique(),
@@ -44,3 +45,5 @@ export type NewUser = typeof users.$inferInsert;
 
 export type Vehicle = typeof vehicles.$inferSelect;
 export type NewVehicle = typeof vehicles.$inferInsert;
+
+export type Role = 'admin' | 'fleet_manager' | 'driver';

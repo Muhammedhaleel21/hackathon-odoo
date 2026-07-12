@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { VehiclesService } from './vehicles.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CreateVehicleSchema, CreateVehicleDto } from './dto/create-vehicle.dto';
 import {
   UpdateVehicleSchema,
@@ -21,6 +20,7 @@ import {
   AssignDriverDto,
 } from './dto/update-vehicle.dto';
 import { z } from 'zod';
+import { ZodValidationPipe } from 'src/validation/zod.validation.pipe';
 
 const UpdateStatusSchema = z.object({
   status: z.enum(['available', 'on_trip', 'on_maintenance']),
@@ -41,34 +41,13 @@ export class VehiclesController {
     return this.vehiclesService.findOne(id);
   }
 
-  @Post()
-  @UsePipes(new ZodValidationPipe(CreateVehicleSchema))
-  create(@Body() dto: CreateVehicleDto) {
-    return this.vehiclesService.create(dto);
-  }
-
-  @Patch(':id')
-  @UsePipes(new ZodValidationPipe(UpdateVehicleSchema))
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateVehicleDto,
-  ) {
-    return this.vehiclesService.update(id, dto);
-  }
 
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.vehiclesService.remove(id);
   }
 
-  @Patch(':id/assign-driver')
-  @UsePipes(new ZodValidationPipe(AssignDriverSchema))
-  assignDriver(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: AssignDriverDto,
-  ) {
-    return this.vehiclesService.assignDriver(id, dto);
-  }
+
 
   @Patch(':id/status')
   async updateStatus(
