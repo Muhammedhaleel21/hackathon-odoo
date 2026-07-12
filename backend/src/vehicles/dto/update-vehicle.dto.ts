@@ -6,7 +6,7 @@ export const UpdateVehicleSchema = z.object({
   capacity: z.number().int().positive().optional(),
   maxLoadCapacity: z.number().int().nonnegative().optional(),
   odometer: z.number().int().nonnegative().optional(),
-  status: z.enum(['available', 'on_trip', 'on_maintenance']).optional(),
+  status: z.enum(['available', 'on_trip', 'on_maintenance', 'in_shop']).optional(),
 });
 
 export type UpdateVehicleDto = z.infer<typeof UpdateVehicleSchema>;

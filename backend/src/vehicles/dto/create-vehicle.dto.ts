@@ -9,7 +9,7 @@ export const CreateVehicleSchema = z.object({
   odometer: z.number().int().nonnegative().optional().default(0),
   driverId: z.string().uuid().optional(),
   status: z
-    .enum(['available', 'on_trip', 'on_maintenance'])
+    .enum(['available', 'on_trip', 'on_maintenance', 'in_shop'])
     .optional()
     .default('available'),
 });
