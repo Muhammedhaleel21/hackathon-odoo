@@ -1,0 +1,33 @@
+CREATE TYPE "public"."gender" AS ENUM('MALE', 'FEMALE', 'OTHER');--> statement-breakpoint
+CREATE TYPE "public"."role" AS ENUM('admin', 'dispatcher', 'fleet_manager', 'financial_analyst', 'safety_officer');--> statement-breakpoint
+CREATE TABLE "users" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"employee_id" text NOT NULL,
+	"full_name" text NOT NULL,
+	"email" text NOT NULL,
+	"role" "role" NOT NULL,
+	"destination" text,
+	"password" text NOT NULL,
+	"is_first_login" boolean DEFAULT true NOT NULL,
+	"is_profile_complete" boolean DEFAULT false NOT NULL,
+	"token_version" integer DEFAULT 1 NOT NULL,
+	"date_of_birth" text,
+	"phone" text,
+	"address" text,
+	"gender" "gender",
+	"emergency_contact_name" text,
+	"emergency_contact_relationship" text,
+	"emergency_contact_phone" text,
+	"profile_photo" text,
+	"contract_start_date" timestamp,
+	"contract_end_date" timestamp,
+	"password_reset_requested" boolean DEFAULT false,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"password_reset_token" text,
+	"password_reset_expiry" timestamp,
+	"is_deleted" boolean DEFAULT false NOT NULL,
+	"deleted_at" timestamp,
+	CONSTRAINT "users_employee_id_unique" UNIQUE("employee_id"),
+	CONSTRAINT "users_email_unique" UNIQUE("email")
+);
